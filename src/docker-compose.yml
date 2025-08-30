@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: product_db
+    environment:
+      SA_PASSWORD: "StrongPass#123"   # Must meet complexity requirements
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "StrongPass#123", "-Q", "SELECT 1"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - db_data:/var/opt/mssql       # persist DB data
+      - ./init-db:/docker-entrypoint-initdb.d # optional init scripts
+
+  api:
+    build:
+      context: ./ProductManagement.API
+      dockerfile: Dockerfile
+    container_name: product_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=db;Database=ProductDB;User Id=sa;Password=StrongPass#123;TrustServerCertificate=True"
+    ports:
+      - "5000:80"
+
+volumes:
+  db_data:
