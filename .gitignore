@@ -1,0 +1,8 @@
+# Solution-wide ignores
+.vscode/
+.idea/
+*.sln
+*.sln.DotSettings
+*.user
+*.suo
+.DS_Store
