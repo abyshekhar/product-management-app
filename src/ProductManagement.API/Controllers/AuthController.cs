@@ -25,9 +25,11 @@ namespace ProductManagement.API.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDto login)
         {
-            // Validate the user (you can add more sophisticated validation here)
-            var user = _context.Users.FirstOrDefault(u => u.Username == login.Username && u.Password == login.Password);
-            if (user == null) return Unauthorized();
+            var user = _context.Users.FirstOrDefault(u => u.Username == login.Username);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
+            {
+                return Unauthorized();
+            }
 
             // Generate JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -36,9 +38,9 @@ namespace ProductManagement.API.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role) // Add the role as a claim
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 Issuer = _configuration["Jwt:Issuer"],
@@ -58,10 +60,13 @@ namespace ProductManagement.API.Controllers
             var existingUser = _context.Users.FirstOrDefault(u => u.Username == registerDto.Username);
             if (existingUser != null) return BadRequest("Username already taken");
 
+            // Hash the password before storing it
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+
             var user = new User
             {
                 Username = registerDto.Username,
-                Password = registerDto.Password, // In production, hash the password before saving
+                Password = hashedPassword,
                 Role = registerDto.Role // Assign the role (Admin/User)
             };
 
@@ -71,6 +76,6 @@ namespace ProductManagement.API.Controllers
             return Ok("User registered successfully");
         }
 
-        
+
     }
 }
