@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProductManagement.API.Models;
 using ProductManagement.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProductManagement.API.Controllers
 {
@@ -24,6 +25,7 @@ namespace ProductManagement.API.Controllers
         };
 
         [HttpGet]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetProducts()
         {
             var products = await _context.Products.ToListAsync();
@@ -31,14 +33,16 @@ namespace ProductManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public  IActionResult GetProduct(int id)
+        [Authorize(Roles = "Admin,User")]
+        public IActionResult GetProduct(int id)
         {
-            var product =products.FirstOrDefault(p => p.Id == id);
+            var product = products.FirstOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
             return Ok(product);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct(Product product)
         {
             _context.Products.Add(product);
