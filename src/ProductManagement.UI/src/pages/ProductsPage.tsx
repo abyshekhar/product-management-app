@@ -21,18 +21,23 @@ const ProductsPage = () => {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | "">("");
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const data = await getProducts({
+      const response = await getProducts({
         page,
         pageSize,
         search: searchTerm || "",
       });
-      setProducts(data);
+
+      // Assuming getProducts returns an AxiosResponse
+      setProducts(response.data);
+      const totalCount = response.total
+      setTotal(totalCount);
     } catch (err) {
       console.error(err);
     } finally {
@@ -40,7 +45,6 @@ const ProductsPage = () => {
     }
   };
 
-  // Fetch categories
   const fetchCategories = async () => {
     try {
       const data = await getCategories();
@@ -50,7 +54,6 @@ const ProductsPage = () => {
     }
   };
 
-  // Fetch favorites for logged-in user
   const fetchFavorites = async () => {
     try {
       const favs = await getFavorites();
@@ -64,9 +67,8 @@ const ProductsPage = () => {
     fetchProducts();
     fetchCategories();
     fetchFavorites();
-  }, []);
+  }, [page, searchTerm, selectedCategory]); // Added dependencies for pagination and filters
 
-  // Convert ProductDto to UpdateProductDto
   const handleEdit = (product: ProductDto) => {
     const initialData: UpdateProductDto = {
       id: product.id,
@@ -111,13 +113,7 @@ const ProductsPage = () => {
     }
   };
 
-  // Compute filtered products safely
-  const filteredProducts = (products || []).filter((p) => {
-    const matchesName = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "" || p.categoryId === selectedCategory;
-    return matchesName && matchesCategory;
-  });
+  const totalPages = Math.ceil(total / pageSize);
 
   if (loading) return <p>Loading products...</p>;
 
@@ -131,16 +127,20 @@ const ProductsPage = () => {
           type="text"
           placeholder="Search by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(1);
+          }}
           style={{ marginRight: "10px" }}
         />
         <select
           value={selectedCategory}
-          onChange={(e) =>
+          onChange={(e) => {
             setSelectedCategory(
               e.target.value === "" ? "" : parseInt(e.target.value)
-            )
-          }
+            );
+            setPage(1);
+          }}
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
@@ -172,8 +172,8 @@ const ProductsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((p) => (
+          {products.length > 0 ? (
+            products.map((p) => (
               <tr key={p.id}>
                 <td>{p.id}</td>
                 <td>{p.name}</td>
@@ -196,6 +196,27 @@ const ProductsPage = () => {
           )}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{ marginTop: "1rem" }}>
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={page === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

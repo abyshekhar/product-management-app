@@ -32,9 +32,11 @@ export const createProduct = async (
 };
 export const getProducts = async (
   params?: any
-): Promise<ProductDto[]> => {
+): Promise<{data:ProductDto[],total:number}> => {
   const response = await api.get("/products", { params });
-  return response.data;
+  console.log(response.headers["x-total-count"]);
+  const total= parseInt(response.headers["x-total-count"] || "0", 10);
+  return { data: response.data, total };
 };
 
 export const updateProduct = async (
