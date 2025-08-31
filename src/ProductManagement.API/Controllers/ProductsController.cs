@@ -47,39 +47,49 @@ namespace ProductManagement.API.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(
-            int? categoryId = null,
             string? search = null,
-            int pageNumber = 1,
+            int? categoryId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            int page = 1,
             int pageSize = 10)
         {
-            var query = _context.Products.Include(p => p.Category).AsQueryable();
+            var query = _context.Products
+                        .Include(p => p.Category)
+                        .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(p => p.Name.Contains(search));
 
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
 
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
 
-            var totalItems = await query.CountAsync();
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
 
+            var total = await query.CountAsync();
             var products = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync();
+            var productsDto = products
                 .Select(p => new ProductDto
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    Description = p.Description,
                     Price = p.Price,
-                    CategoryName = p.Category.Name,
-                    CategoryId = p.CategoryId
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name
                 })
-                .ToListAsync();
+                .ToList();
 
             // Optional: include pagination info in response headers
-            Response.Headers.Add("X-Total-Count", totalItems.ToString());
+            Response.Headers.Append("X-Total-Count", total.ToString());
 
-            return Ok(products);
+            return Ok(productsDto);
         }
 
         // Get Single Product by ID

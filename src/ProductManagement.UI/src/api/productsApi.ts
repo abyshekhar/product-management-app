@@ -30,8 +30,10 @@ export const createProduct = async (
   const response = await api.post<ProductDto>("/products", product);
   return response.data;
 };
-export const getProducts = async (): Promise<ProductDto[]> => {
-  const response = await api.get<ProductDto[]>("/products");
+export const getProducts = async (
+  params?: any
+): Promise<ProductDto[]> => {
+  const response = await api.get("/products", { params });
   return response.data;
 };
 
