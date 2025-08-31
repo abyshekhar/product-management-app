@@ -32,6 +32,7 @@ const ProductsPage = () => {
         page,
         pageSize,
         search: searchTerm || "",
+        categoryId: selectedCategory || undefined, // ✅ Add this
       });
 
       // Assuming getProducts returns an AxiosResponse
