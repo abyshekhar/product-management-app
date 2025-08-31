@@ -1,11 +1,11 @@
-// ProductForm.tsx
-import React, { useState, type FormEvent } from "react";
+import React, { useState, useEffect, type FormEvent } from "react";
 import type { CreateProductDto, UpdateProductDto } from "../api/productsApi";
+import type { CategoryDto } from "../api/categoriesApi";
 
 interface ProductFormProps<T> {
   initialData?: T;
   onSubmit: (data: T) => void;
-  categories: { id: number; name: string }[];
+  categories: CategoryDto[];
 }
 
 function ProductForm<T extends CreateProductDto | UpdateProductDto>({
@@ -20,28 +20,36 @@ function ProductForm<T extends CreateProductDto | UpdateProductDto>({
   const [price, setPrice] = useState(initialData?.price || 0);
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || 0);
 
-const handleSubmit = (e: FormEvent) => {
-  e.preventDefault();
+  // Sync state whenever initialData changes (important for Edit)
+  useEffect(() => {
+    setName(initialData?.name || "");
+    setDescription(initialData?.description || "");
+    setPrice(initialData?.price || 0);
+    setCategoryId(initialData?.categoryId || 0);
+  }, [initialData]);
 
-  // Check if initialData has id (i.e., it's UpdateProductDto)
-  const payload =
-    initialData && "id" in initialData
-      ? ({
-          id: initialData.id, // safe now
-          name,
-          description,
-          price,
-          categoryId,
-        } as UpdateProductDto)
-      : ({
-          name,
-          description,
-          price,
-          categoryId,
-        } as CreateProductDto);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
 
-  onSubmit(payload as any); // TypeScript now understands the types
-};
+    const payload =
+      initialData && "id" in initialData
+        ? ({
+            id: initialData.id,
+            name,
+            description,
+            price,
+            categoryId,
+          } as UpdateProductDto)
+        : ({
+            name,
+            description,
+            price,
+            categoryId,
+          } as CreateProductDto);
+
+    onSubmit(payload as T);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <input

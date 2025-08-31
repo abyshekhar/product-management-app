@@ -6,12 +6,9 @@ import {
   deleteProduct,
 } from "../api/productsApi";
 import type { ProductDto, UpdateProductDto } from "../api/productsApi";
+import type { CategoryDto } from "../api/categoriesApi";
 import ProductForm from "../components/ProductForm";
-
-interface Category {
-  id: number;
-  name: string;
-}
+import { getCategories } from "../api/categoriesApi";
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<ProductDto[]>([]);
@@ -19,30 +16,37 @@ const ProductsPage = () => {
   const [editingProduct, setEditingProduct] = useState<UpdateProductDto | null>(
     null
   );
-  const [categories, setCategories] = useState<Category[]>([]); // assume we fetch this too
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
 
+  // Fetch products
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const data = await getProducts();
-      setProducts(data); // fix: data is already an array
-    } catch (error) {
-      console.error(error);
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch categories
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
-    // TODO: fetch categories from API
-    setCategories([
-      { id: 1, name: "Category 1" },
-      { id: 2, name: "Category 2" },
-    ]);
+    fetchCategories();
   }, []);
 
-  // Convert ProductDto to UpdateProductDto for editing
+  // Convert ProductDto to UpdateProductDto
   const handleEdit = (product: ProductDto) => {
     const initialData: UpdateProductDto = {
       id: product.id,
@@ -50,7 +54,7 @@ const ProductsPage = () => {
       description: product.description,
       price: product.price,
       categoryId:
-        categories.find((c) => c.name === product.categoryName)?.id || 0, // map name to ID
+        categories.find((c) => c.name === product.categoryName)?.id || 0,
     };
     setEditingProduct(initialData);
   };
@@ -80,7 +84,7 @@ const ProductsPage = () => {
       <h1>Products</h1>
 
       <h2>{editingProduct ? "Edit Product" : "Create Product"}</h2>
-      <ProductForm
+      <ProductForm<UpdateProductDto>
         initialData={editingProduct || undefined}
         onSubmit={editingProduct ? handleUpdate : handleCreate}
         categories={categories}

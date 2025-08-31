@@ -45,6 +45,7 @@ namespace ProductManagement.API.Controllers
 
         // Get All Products with filtering, search, and pagination
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(
             int? categoryId = null,
             string? search = null,

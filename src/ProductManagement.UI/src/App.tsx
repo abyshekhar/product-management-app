@@ -1,35 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { type JSX } from "react";
+import { Navigate } from "react-router-dom";
+import { isLoggedIn } from "./utils/auth";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Props {
+  children: JSX.Element;
 }
 
-export default App
+const PrivateRoute = ({ children }: Props) => {
+  const auth = isLoggedIn();
+  console.log("PrivateRoute check, logged in?", auth); // debug
+  if (!auth) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+export default PrivateRoute;
