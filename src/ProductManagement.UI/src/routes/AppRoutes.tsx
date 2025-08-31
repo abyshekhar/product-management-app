@@ -5,15 +5,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import ProductsPage from "../pages/ProductsPage";
-import LoginPage from "../pages/LoginPage"; // create this page
-import { useAuth } from "../hooks/AuthContext"; // custom hook to get auth state
-import type { JSX } from "react";
-
-// PrivateRoute wrapper
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const { user } = useAuth(); // get logged-in user
-  return user ? children : <Navigate to="/login" />;
-};
+import CategoriesPage from "../pages/CategoriesPage";
+import LoginPage from "../pages/LoginPage"; // Assuming login exists
 
 const AppRoutes = () => {
   return (
@@ -21,15 +14,9 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/products" />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/products"
-          element={
-            <PrivateRoute>
-              <ProductsPage />
-            </PrivateRoute>
-          }
-        />
-        {/* Add more routes here later (Categories, etc.) */}
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
+        {/* Add more routes later */}
       </Routes>
     </Router>
   );
