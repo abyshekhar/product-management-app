@@ -119,8 +119,10 @@ const ProductsPage = () => {
   if (loading) return <p>Loading products...</p>;
 
   return (
-    <div>
-      <h1>Products</h1>
+    <div className="center w-full">
+      <h1>
+        Products
+      </h1>
 
       {/* Search and Filter Controls */}
       <div style={{ marginBottom: "1rem" }}>
@@ -153,7 +155,7 @@ const ProductsPage = () => {
       </div>
 
       {/* Create / Edit Form */}
-      <h2>{editingProduct ? "Edit Product" : "Create Product"}</h2>
+      <h2 className="text-2xl">{editingProduct ? "Edit Product" : "Create Product"}</h2>
       <ProductForm<UpdateProductDto>
         initialData={editingProduct || undefined}
         onSubmit={editingProduct ? handleUpdate : handleCreate}
@@ -161,8 +163,8 @@ const ProductsPage = () => {
       />
 
       {/* Products Table */}
-      <table>
-        <thead>
+      <table className="w-full">
+        <thead className="p-2">
           <tr>
             <th>ID</th>
             <th>Name</th>
@@ -182,9 +184,16 @@ const ProductsPage = () => {
                 <td>{p.price}</td>
                 <td>{p.categoryName}</td>
                 <td>
-                  <button onClick={() => handleEdit(p)}>Edit</button>
-                  <button onClick={() => handleDelete(p.id)}>Delete</button>
-                  <button onClick={() => handleToggleFavorite(p.id)}>
+                  <button className="p-2" onClick={() => handleEdit(p)}>
+                    Edit
+                  </button>
+                  <button className="p-2" onClick={() => handleDelete(p.id)}>
+                    Delete
+                  </button>
+                  <button
+                    className="p-2"
+                     onClick={() => handleToggleFavorite(p.id)}
+                  >
                     {favoriteIds.includes(p.id) ? "❤️" : "🤍"}
                   </button>
                 </td>

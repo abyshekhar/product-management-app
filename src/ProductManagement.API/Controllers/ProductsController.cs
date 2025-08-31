@@ -81,6 +81,7 @@ namespace ProductManagement.API.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     Price = p.Price,
+                    Description =p.Description,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category.Name
                 })
