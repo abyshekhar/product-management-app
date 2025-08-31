@@ -9,8 +9,11 @@ import type { ProductDto, UpdateProductDto } from "../api/productsApi";
 import type { CategoryDto } from "../api/categoriesApi";
 import ProductForm from "../components/ProductForm";
 import { getCategories } from "../api/categoriesApi";
+import { getFavorites, addFavorite, removeFavorite } from "../api/favoritesApi";
 
 const ProductsPage = () => {
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<UpdateProductDto | null>(
@@ -40,10 +43,22 @@ const ProductsPage = () => {
       console.error(err);
     }
   };
+  // Fetch favorites for logged-in user
+  const fetchFavorites = async () => {
+    try {
+      const favs = await getFavorites();
+      setFavoriteIds(favs.map((f) => f.productId));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+    fetchFavorites();
+
   }, []);
 
   // Convert ProductDto to UpdateProductDto
@@ -76,6 +91,30 @@ const ProductsPage = () => {
       fetchProducts();
     }
   };
+  const handleAddFavorite = async (productId: number) => {
+    try {
+      await addFavorite(productId);
+      alert("Added to favorites!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add favorite.");
+    }
+  };
+  const handleToggleFavorite = async (productId: number) => {
+    try {
+      if (favoriteIds.includes(productId)) {
+        await removeFavorite(productId);
+      } else {
+        await addFavorite(productId);
+      }
+      // Refresh favoriteIds
+      await fetchFavorites();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update favorite.");
+    }
+  };
+
 
   if (loading) return <p>Loading products...</p>;
 
@@ -109,9 +148,13 @@ const ProductsPage = () => {
               <td>{p.description}</td>
               <td>{p.price}</td>
               <td>{p.categoryName}</td>
+              {/* // Inside your product table row: */}
               <td>
                 <button onClick={() => handleEdit(p)}>Edit</button>
                 <button onClick={() => handleDelete(p.id)}>Delete</button>
+                <button onClick={() => handleToggleFavorite(p.id)}>
+                  {favoriteIds.includes(p.id) ? "❤️" : "🤍"}
+                </button>
               </td>
             </tr>
           ))}

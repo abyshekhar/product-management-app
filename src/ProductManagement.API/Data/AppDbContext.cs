@@ -10,7 +10,7 @@ namespace ProductManagement.API.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
-
+        public DbSet<Favorite> Favorites { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Relationship: Product -> Category
@@ -18,7 +18,15 @@ namespace ProductManagement.API.Data
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId);
+            modelBuilder.Entity<Favorite>()
+                   .HasOne(f => f.User)
+                   .WithMany(u => u.Favorites)
+                   .HasForeignKey(f => f.UserId);
 
+            modelBuilder.Entity<Favorite>()
+                .HasOne(f => f.Product)
+                .WithMany()
+                .HasForeignKey(f => f.ProductId);
             // Seed Categories
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Electronics" },

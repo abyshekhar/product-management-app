@@ -24,8 +24,9 @@ const Navbar = () => {
               </Link>
             </>
           )}
+          <Link to="/favorites">Favorites</Link>
           {user.role === "User" && <Link to="/dashboard">Dashboard</Link>}
-          <span style={{ marginRight: "10px" }}>Hello, {user.username}</span>
+          <span style={{ marginRight: "10px" }}>&nbsp;Hello, {user.username}</span>
           <button onClick={logout}>Logout</button>
         </>
       ) : (

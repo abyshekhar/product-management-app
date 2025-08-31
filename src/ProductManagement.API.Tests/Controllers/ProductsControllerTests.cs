@@ -52,7 +52,7 @@ namespace ProductManagement.API.Tests.Controllers
             var controller = GetController(context);
 
             // Act
-            var result = await controller.GetProduct(product.Id);
+            var result = await controller.GetProductById(product.Id);
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<Product>>(result);
@@ -66,7 +66,7 @@ namespace ProductManagement.API.Tests.Controllers
             var context = TestDbContextFactory.CreateInMemoryDbContext("GetProductNotFoundDb");
             var controller = GetController(context);
 
-            var result = await controller.GetProduct(999);
+            var result = await controller.GetProductById(999);
 
             Assert.IsType<NotFoundResult>(result.Result);
         }
@@ -75,15 +75,21 @@ namespace ProductManagement.API.Tests.Controllers
         public async Task UpdateProduct_ValidData_ReturnsNoContent()
         {
             var context = TestDbContextFactory.CreateInMemoryDbContext("UpdateProductDb");
-            var product = new Product { Name = "Old Name", Description = "Old Desc", Price = 100 };
+            var product = new Product { Name = "Old Name", Description = "Old Desc", Price = 100, CategoryId=1 };
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
             var controller = GetController(context);
 
-            product.Name = "Updated Name";
+            var updateDto = new UpdateProductDto
+            {
+                Name = "Updated Name",
+                Description = product.Description,
+                Price = product.Price,
+                CategoryId = product.CategoryId
+            };
 
-            var result = await controller.UpdateProduct(product.Id, product);
+            var result = await controller.UpdateProduct(product.Id, updateDto);
 
             Assert.IsType<NoContentResult>(result);
 
@@ -97,9 +103,15 @@ namespace ProductManagement.API.Tests.Controllers
             var context = TestDbContextFactory.CreateInMemoryDbContext("UpdateProductNotFoundDb");
             var controller = GetController(context);
 
-            var product = new Product { Id = 999, Name = "Fake", Description = "Fake", Price = 10 };
+            var updateDto = new UpdateProductDto
+            {
+                Name = "Fake",
+                Description = "Fake",
+                Price = 10,
+                CategoryId = 1
+            };
 
-            var result = await controller.UpdateProduct(999, product);
+            var result = await controller.UpdateProduct(999, updateDto);
 
             Assert.IsType<NotFoundResult>(result);
         }

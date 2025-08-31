@@ -6,5 +6,8 @@ namespace ProductManagement.API.Models
         public string Username { get; set; }
         public string Password { get; set; } // In production, hash passwords before storing them!
         public string Role { get; set; } // Admin or User
+        
+        // Add this for favorites
+        public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
     }
 }

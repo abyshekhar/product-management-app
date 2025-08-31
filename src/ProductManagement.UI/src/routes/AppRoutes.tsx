@@ -10,15 +10,14 @@ import LoginPage from "../pages/LoginPage";
 import PrivateRoute from "../components/PrivateRoutes";
 import RegisterPage from "../pages/RegisterPage";
 import UserDashboard from "../pages/UserDashboard";
+import FavoritesPage from "../pages/FavoritesPage";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/products" />} />
       <Route path="/register" element={<RegisterPage />} />
-
       <Route path="/login" element={<LoginPage />} />
-
       {/* Admin-only routes */}
       <Route
         path="/products"
@@ -41,6 +40,16 @@ const AppRoutes = () => {
         element={
           <PrivateRoute roles={["User", "Admin"]}>
             <UserDashboard />
+          </PrivateRoute>
+        }
+      />
+      // Add inside Routes:
+      <Route
+        path="/favorites"
+        element={
+          <PrivateRoute roles={["User", "Admin"]}>
+            <FavoritesPage />
+
           </PrivateRoute>
         }
       />
