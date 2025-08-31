@@ -1,9 +1,9 @@
 export const setToken = (token: string) => {
-  localStorage.setItem("jwt_token", token);
+  localStorage.setItem("token", token);
 };
 
 export const getToken = (): string | null => {
-  return localStorage.getItem("jwt_token");
+  return localStorage.getItem("token");
 };
 
 export const isLoggedIn = (): boolean => {
@@ -11,5 +11,5 @@ export const isLoggedIn = (): boolean => {
 };
 
 export const logout = () => {
-  localStorage.removeItem("jwt_token");
+  localStorage.removeItem("token");
 };

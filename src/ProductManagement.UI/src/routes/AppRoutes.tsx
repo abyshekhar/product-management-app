@@ -6,19 +6,36 @@ import {
 } from "react-router-dom";
 import ProductsPage from "../pages/ProductsPage";
 import CategoriesPage from "../pages/CategoriesPage";
-import LoginPage from "../pages/LoginPage"; // Assuming login exists
+import LoginPage from "../pages/LoginPage";
+import PrivateRoute from "../components/PrivateRoutes";
 
 const AppRoutes = () => {
   return (
-    <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/products" />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/categories" element={<CategoriesPage />} />
-        {/* Add more routes later */}
+
+        {/* Admin-only routes */}
+        <Route
+          path="/products"
+          element={
+            <PrivateRoute roles={["Admin"]}>
+              <ProductsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <PrivateRoute roles={["Admin"]}>
+              <CategoriesPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Fallback route for unmatched paths */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Router>
   );
 };
 

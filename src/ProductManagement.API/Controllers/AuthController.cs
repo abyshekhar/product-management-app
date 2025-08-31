@@ -23,7 +23,7 @@ namespace ProductManagement.API.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto login)
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto login)
         {
             var user = _context.Users.FirstOrDefault(u => u.Username == login.Username);
             if (user == null || !BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
@@ -51,7 +51,17 @@ namespace ProductManagement.API.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = jwtToken });
+            var response = new LoginResponseDto
+            {
+                Token = jwtToken,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Role = user.Role
+                }
+            };
+            return Ok(response);
         }
 
         [HttpPost("register")]

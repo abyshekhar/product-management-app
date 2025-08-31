@@ -1,14 +1,16 @@
 import { createContext, useContext, type ReactNode, useState } from "react";
-import { loginApi, type LoginResponse } from "../api/authApi";
+import { loginApi } from "../api/authApi";
 
 // 1. Define interfaces
+// AuthContext.tsx
 interface User {
   id: number;
   username: string;
+  role: ("Admin" | "User"); // Add role
 }
 
 interface AuthContextType {
-  user: LoginResponse | null;
+  user: User | null;
   token: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -19,12 +21,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 3. Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<LoginResponse | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   const login = async (username: string, password: string) => {
     const response = await loginApi({ username, password });
-    setUser(response);
+     const user: User = {
+       id: response.user.id,
+       username: response.user.username,
+       role: response.user.role === "Admin" ? "Admin" : "User",
+     };
+    setUser(user);
     setToken(response.token);
     localStorage.setItem("token", response.token);
   };
