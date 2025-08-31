@@ -6,6 +6,7 @@ export interface ProductDto {
   description: string;
   price: number;
   categoryName: string;
+  categoryId:number
 }
 
 export interface CreateProductDto {

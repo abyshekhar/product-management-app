@@ -71,7 +71,8 @@ namespace ProductManagement.API.Controllers
                     Name = p.Name,
                     Description = p.Description,
                     Price = p.Price,
-                    CategoryName = p.Category.Name
+                    CategoryName = p.Category.Name,
+                    CategoryId = p.CategoryId
                 })
                 .ToListAsync();
 
