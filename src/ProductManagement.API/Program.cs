@@ -7,21 +7,23 @@ using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // frontend origin
+            //We can have multiple origins isted here as csv
+            policy.WithOrigins("http://localhost:5173") // frontend origin 
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .WithExposedHeaders("X-Total-Count");
+                  // This CORS policy explicitly allows the browser to access the X-Total-Count header from a cross-origin response.
+                  .WithExposedHeaders("X-Total-Count"); 
         });
 });
-// Add services to the container.
-// Add services to the container.
-
+// Add Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

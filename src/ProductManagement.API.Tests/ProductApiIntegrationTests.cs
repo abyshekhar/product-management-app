@@ -13,7 +13,8 @@ public class ProductApiIntegrationTests : IClassFixture<CustomWebApplicationFact
     [Fact]
     public async Task CreateProduct_ReturnsCreatedProduct()
     {
-        var product = new { Name = "Integration Test Product",Description="Integration Test Product", Price = 99 };
+
+        var product = new { Name = "Integration Test Product",Description="Integration Test Product", Price = 99,CategoryId =1 };
 
         var response = await _client.PostAsJsonAsync("/api/products", product);
 
